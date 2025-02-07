@@ -102,6 +102,22 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     """
     # BEGIN ASSIGN1_1
     # TODO
+    visited = set()
+    top_sort = []
+
+    def dfs(v: Variable):
+        # recursive dfs
+        if v.is_constant() or v.unique_id in visited:
+            return
+        visited.add(v.unique_id)
+        for p in v.parents:
+            dfs(p)
+
+        top_sort.append(v)
+
+    dfs(variable)
+    return reversed(top_sort)
+
     
     raise NotImplementedError("Task Autodiff Not Implemented Yet")
     # END ASSIGN1_1
@@ -120,10 +136,28 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
     """
     # BEGIN ASSIGN1_1
     # TODO
-   
-    raise NotImplementedError("Task Autodiff Not Implemented Yet")
-    # END ASSIGN1_1
+    top_sort = list(topological_sort(variable))
+    grads = {v.unique_id: 0 for v in top_sort} # dictionary to store the gradient of each variable
 
+    # initialize the gradient of the output
+    grads[variable.unique_id] = deriv
+
+    # iterate through the topological order and propagate the gradient
+    for v in top_sort:
+
+        if v.is_leaf():
+            v.accumulate_derivative(grads[v.unique_id])
+
+        else:
+            for p, g in v.chain_rule(grads[v.unique_id]):
+                
+                if p.unique_id in grads:  # if the parent is already in the grads
+                    grads[p.unique_id] += g
+                elif not p.is_constant(): # if the parent is not in the dictionary, add it
+                    grads[p.unique_id] = g        
+
+    # raise NotImplementedError("Task Autodiff Not Implemented Yet")
+    # END ASSIGN1_1
 
 @dataclass
 class Context:
