@@ -61,7 +61,7 @@ class Linear(minitorch.Module):
         # step 2
         weights = self.weights.value.view(in_size, self.out_size)
 
-        # step 3
+        # step 3 
         out = x @ weights
 
         # step 4
@@ -101,8 +101,8 @@ class Network(minitorch.Module):
         # 1. Construct two linear layers: the first one is embedding_dim * hidden_dim, the second one is hidden_dim * 1
 
         # step 1
-        self.linear1 = Linear(embedding_dim, hidden_dim)
-        self.linear2 = Linear(hidden_dim, 1)
+        self.lin1 = Linear(embedding_dim, hidden_dim)
+        self.lin2 = Linear(hidden_dim, 1)
 
 
         # END ASSIGN1_3
@@ -129,14 +129,14 @@ class Network(minitorch.Module):
 
 
         # step 2
-        out = self.linear1.forward(embeddings)
+        out = self.lin1.forward(embeddings)
         
         # step 3
         out = minitorch.Tensor.relu(out)
         out = minitorch.dropout(out, self.dropout_prob)
 
         # step 4
-        out = self.linear2.forward(out)
+        out = self.lin2.forward(out)
 
         # step 5
         out = minitorch.Tensor.sigmoid(out).view(batch_size)
@@ -234,8 +234,8 @@ class SentenceSentimentTrain:
                 # 6. Use Optimizer to take a gradient step
 
                 # step 1 and 2
-                x = minitorch.tensor(X_train[example_num:example_num+batch_size], backend=BACKEND, requires_grad=True)
-                y = minitorch.tensor(y_train[example_num:example_num+batch_size], backend=BACKEND, requires_grad=True)
+                x = minitorch.tensor(X_train[example_num:example_num + batch_size], backend=BACKEND, requires_grad=True)
+                y = minitorch.tensor(y_train[example_num:example_num + batch_size], backend=BACKEND, requires_grad=True)
 
                 # step 3
                 out = model.forward(x)

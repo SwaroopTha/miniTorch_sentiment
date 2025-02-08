@@ -142,7 +142,7 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
     # initialize the gradient of the output
     grads[variable.unique_id] = deriv
 
-    # iterate through the topological order and propagate the gradient
+    # iterate through the topological ordering and accumulate the gradients
     for v in top_sort:
 
         if v.is_leaf():
@@ -153,7 +153,7 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
                 
                 if p.unique_id in grads:  # if the parent is already in the grads
                     grads[p.unique_id] += g
-                elif not p.is_constant(): # if the parent is not in the dictionary, add it
+                elif not p.is_constant(): # if the parent is not in the grads then add it to the grads
                     grads[p.unique_id] = g        
 
     # raise NotImplementedError("Task Autodiff Not Implemented Yet")

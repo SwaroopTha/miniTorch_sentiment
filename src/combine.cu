@@ -226,7 +226,7 @@ __global__ void MatrixMultiplyKernel(
     // In each block, we will compute a batch of the output matrix
     // All the threads in the block will work together to compute this batch
     int batch = blockIdx.z;
-    int a_batch_stride = a_shape[0] > 1 ? a_strides[0] : 0; // meaning that 
+    int a_batch_stride = a_shape[0] > 1 ? a_strides[0] : 0; 
     int b_batch_stride = b_shape[0] > 1 ? b_strides[0] : 0;
 
 
@@ -246,13 +246,11 @@ __global__ void MatrixMultiplyKernel(
     int col = blockIdx.y * blockDim.y + threadIdx.y;
     float sum = 0.0f;
 
-    int m = a_shape[1], n = a_shape[2], p = b_shape[2];
-
-    // step 2
     int out_idx[MAX_DIMS] = {batch, row, col};
     int a_index[MAX_DIMS];
     int b_index[MAX_DIMS];
 
+    // step 2
     int out_pos = index_to_position(out_idx, out_strides, 3);
 
     // step 3
@@ -260,13 +258,14 @@ __global__ void MatrixMultiplyKernel(
       a_index[0] = batch, a_index[1] = row, a_index[2] = k * TILE + threadIdx.y;
       b_index[0] = batch, b_index[1] = k * TILE + threadIdx.x, b_index[2] = col;
 
-      if (a_index[1] < m && a_index[2] < n) {
+      // check if the index is within the bounds of the matrix
+      if (a_index[1] < a_shape[1] && a_index[2] < a_shape[2]) {
         a_shared[threadIdx.x][threadIdx.y] = a_storage[index_to_position(a_index, a_strides, 3)];
       } else {
         a_shared[threadIdx.x][threadIdx.y] = 0.0f;
       }
 
-      if (b_index[1] < n && b_index[2] < p) {
+      if (b_index[1] < a_shape[2] && b_index[2] < b_shape[2]) {
         b_shared[threadIdx.x][threadIdx.y] = b_storage[index_to_position(b_index, b_strides, 3)];
       } else {
         b_shared[threadIdx.x][threadIdx.y] = 0.0f;
@@ -436,7 +435,7 @@ __global__ void reduceKernel(
         for (int j = 0; j < shape_size; ++j) {
           a_index[j] = out_index[j];
         }
-        a_index[reduce_dim] = i; // reduce along this dimension
+        a_index[reduce_dim] = i; // reduce along dimension of reduce_dim
 
         // convert a_index to a_pos to get the position of the element in a_storage
         int a_pos = index_to_position(a_index, a_strides, shape_size); 
