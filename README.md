@@ -9,7 +9,9 @@ Goal: A basic deep learning framework capable of CUDA-optimized tensor operation
 
 ## 1. Dependencies
 ```$ python -m pip install -r requirements.txt```
+
 ```$ python -m pip install -r requirements.extra.txt```
+
 ```$ python -m pip install -Ue .```
 
 Ensure NVIDIA Drivers are installed
